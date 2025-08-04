@@ -23,11 +23,7 @@ A microservice for ingesting BLADE data from Databricks into a catalog system.
    ```bash
    make run
    ```
-
-## Development
-
-See the implementation guide in `blade-ingestion-implementation-guide/` for detailed instructions.
-
+   
 ## API Documentation
 
 - gRPC: localhost:9090
