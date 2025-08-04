@@ -1,0 +1,977 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "BLADE Ingestion Service API",
+    "description": "Service for ingesting BLADE (Basic Logistics and Deployment Engine) data from Databricks mock server into a catalog system.",
+    "version": "1.0",
+    "contact": {
+      "name": "BLADE Support",
+      "email": "blade-support@example.com"
+    }
+  },
+  "tags": [
+    {
+      "name": "BLADEIngestionService"
+    }
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/blade/bulk-ingest": {
+      "post": {
+        "summary": "Bulk ingest BLADE items",
+        "description": "Ingests multiple BLADE items based on filter criteria or specific item IDs.",
+        "operationId": "BLADEIngestionService_BulkIngestBLADE",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/bladeIngestionResponse"
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/bladeBulkIngestionRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Ingestion"
+        ]
+      }
+    },
+    "/blade/{dataType}": {
+      "get": {
+        "summary": "Query BLADE data by type",
+        "description": "Queries BLADE data from Databricks based on data type with optional filtering and pagination.",
+        "operationId": "BLADEIngestionService_QueryBLADE",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/bladeBLADEQueryResponse"
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "dataType",
+            "description": "Type of BLADE data to query",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "filter",
+            "description": "Optional SQL WHERE clause for filtering",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "description": "Maximum number of results to return",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "offset",
+            "description": "Number of results to skip for pagination",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "orderBy",
+            "description": "Sort order (e.g., 'created_at DESC')",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/blade/{dataType}/{itemId}": {
+      "get": {
+        "summary": "Get specific BLADE item by ID",
+        "description": "Retrieves a specific BLADE item by its unique identifier and data type.",
+        "operationId": "BLADEIngestionService_GetBLADEItem",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/bladeBLADEItem"
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "dataType",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "metadata",
+            "in": "query",
+            "required": false,
+            "type": "object"
+          }
+        ],
+        "tags": [
+          "Query"
+        ]
+      }
+    },
+    "/blade/{dataType}/{itemId}/ingest": {
+      "post": {
+        "summary": "Ingest specific BLADE item to catalog",
+        "description": "Fetches a specific BLADE item from Databricks and ingests it into the catalog system.",
+        "operationId": "BLADEIngestionService_IngestBLADEItem",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/bladeIngestionResponse"
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "dataType",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "metadata",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "tags": [
+          "Ingestion"
+        ]
+      }
+    },
+    "/configure/blade/sources": {
+      "get": {
+        "summary": "List all configured BLADE data sources",
+        "description": "Returns a list of all configured BLADE data sources with their current status and configuration.",
+        "operationId": "BLADEIngestionService_ListBLADESources",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/bladeDataSourceList"
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "Configuration"
+        ]
+      }
+    },
+    "/configure/blade/{name}": {
+      "delete": {
+        "summary": "Remove a BLADE data source",
+        "description": "Removes a configured BLADE data source. This does not delete any already ingested data.",
+        "operationId": "BLADEIngestionService_RemoveBLADESource",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Configuration"
+        ]
+      },
+      "post": {
+        "summary": "Configure a BLADE data source",
+        "description": "Adds a new Databricks data source for BLADE data. The source configuration includes connection details and data type mappings.",
+        "operationId": "BLADEIngestionService_AddBLADESource",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "description": "Unique identifier for the data source (e.g., 'blade-maintenance')",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BLADEIngestionServiceAddBLADESourceBody"
+            }
+          }
+        ],
+        "tags": [
+          "Configuration"
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Service health check",
+        "description": "Returns the health status of the service and its dependencies.",
+        "operationId": "BLADEIngestionService_HealthCheck",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/bladeHealthResponse"
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "System"
+        ]
+      }
+    },
+    "/jobs/blade/query/start": {
+      "post": {
+        "summary": "Start async BLADE query job",
+        "description": "Starts an asynchronous job to execute a custom SQL query against Databricks and ingest the results.",
+        "operationId": "BLADEIngestionService_StartBLADEQueryJob",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/bladeJobResponse"
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/bladeBLADEQueryJobRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Jobs"
+        ]
+      }
+    },
+    "/jobs/blade/query/status/{jobId}": {
+      "get": {
+        "summary": "Get BLADE query job status",
+        "description": "Returns the current status and progress of a BLADE query job.",
+        "operationId": "BLADEIngestionService_GetBLADEQueryJobStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/bladeJobStatusResponse"
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Jobs"
+        ]
+      }
+    },
+    "/jobs/sync/start": {
+      "post": {
+        "summary": "Start BLADE data sync job",
+        "description": "Starts an asynchronous job to sync BLADE data from Databricks to the catalog.",
+        "operationId": "BLADEIngestionService_StartBLADESync",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/bladeJobResponse"
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/bladeSyncJobRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Jobs"
+        ]
+      }
+    },
+    "/jobs/sync/status": {
+      "get": {
+        "summary": "Get current sync job status",
+        "description": "Returns detailed status information about the current or last sync job.",
+        "operationId": "BLADEIngestionService_GetSyncStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/bladeSyncStatusResponse"
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "Jobs"
+        ]
+      }
+    },
+    "/jobs/sync/stop": {
+      "post": {
+        "summary": "Stop current sync job",
+        "description": "Stops the currently running synchronization job.",
+        "operationId": "BLADEIngestionService_StopBLADESync",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/bladeJobResponse"
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "Jobs"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "BLADEIngestionServiceAddBLADESourceBody": {
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "example": "BLADE Maintenance Data",
+          "description": "Human-readable name for the data source"
+        },
+        "dataType": {
+          "type": "string",
+          "example": "maintenance",
+          "description": "Type of BLADE data: maintenance, sortie, deployment, or logistics"
+        },
+        "enabled": {
+          "type": "boolean",
+          "example": true,
+          "description": "Whether this data source is currently active"
+        },
+        "config": {
+          "type": "object",
+          "description": "Additional configuration parameters (warehouse_id, catalog, schema, table)"
+        }
+      },
+      "required": [
+        "dataType"
+      ]
+    },
+    "SyncJobRequestSyncType": {
+      "type": "string",
+      "enum": [
+        "FULL",
+        "INCREMENTAL",
+        "DATA_TYPE"
+      ],
+      "default": "FULL"
+    },
+    "bladeBLADEItem": {
+      "type": "object",
+      "properties": {
+        "itemId": {
+          "type": "string"
+        },
+        "dataType": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object"
+        },
+        "classificationMarking": {
+          "type": "string"
+        },
+        "lastModified": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "bladeBLADEQueryJobRequest": {
+      "type": "object",
+      "properties": {
+        "sqlQuery": {
+          "type": "string",
+          "example": "SELECT * FROM blade_maintenance_data WHERE priority = 'HIGH'",
+          "description": "SQL query to execute against Databricks"
+        },
+        "dataType": {
+          "type": "string",
+          "description": "Type of BLADE data being queried"
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Additional parameters for the query job"
+        },
+        "catalogConfig": {
+          "type": "object",
+          "description": "Configuration for catalog upload (classification, metadata)"
+        }
+      },
+      "required": [
+        "sqlQuery",
+        "dataType"
+      ]
+    },
+    "bladeBLADEQueryResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/bladeBLADEItem"
+          }
+        },
+        "totalCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "nextPageToken": {
+          "type": "string"
+        }
+      }
+    },
+    "bladeBulkIngestionRequest": {
+      "type": "object",
+      "properties": {
+        "dataType": {
+          "type": "string"
+        },
+        "itemIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "filter": {
+          "type": "string"
+        },
+        "maxItems": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "dataType"
+      ]
+    },
+    "bladeDataSource": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "blade-maintenance",
+          "description": "Unique identifier for the data source (e.g., 'blade-maintenance')"
+        },
+        "displayName": {
+          "type": "string",
+          "example": "BLADE Maintenance Data",
+          "description": "Human-readable name for the data source"
+        },
+        "dataType": {
+          "type": "string",
+          "example": "maintenance",
+          "description": "Type of BLADE data: maintenance, sortie, deployment, or logistics"
+        },
+        "enabled": {
+          "type": "boolean",
+          "example": true,
+          "description": "Whether this data source is currently active"
+        },
+        "config": {
+          "type": "object",
+          "description": "Additional configuration parameters (warehouse_id, catalog, schema, table)"
+        }
+      },
+      "required": [
+        "name",
+        "dataType"
+      ]
+    },
+    "bladeDataSourceList": {
+      "type": "object",
+      "properties": {
+        "dataSources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/bladeDataSource"
+          }
+        }
+      }
+    },
+    "bladeHealthResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "services": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uptime": {
+          "type": "string"
+        }
+      }
+    },
+    "bladeIngestionResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "itemsProcessed": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "itemsSucceeded": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "itemsFailed": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "details": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "bladeJobResponse": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "startTime": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "bladeJobStatusResponse": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "progress": {
+          "type": "number",
+          "format": "float"
+        },
+        "currentOperation": {
+          "type": "string"
+        },
+        "totalItems": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "processedItems": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "successCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "errorCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "startTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "estimatedCompletion": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "recentErrors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "bladeSyncJobRequest": {
+      "type": "object",
+      "properties": {
+        "syncType": {
+          "$ref": "#/definitions/SyncJobRequestSyncType"
+        },
+        "dataType": {
+          "type": "string"
+        },
+        "filter": {
+          "type": "string"
+        },
+        "maxItems": {
+          "type": "string",
+          "format": "int64"
+        },
+        "options": {
+          "type": "object"
+        }
+      }
+    },
+    "bladeSyncStatusResponse": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "currentOperation": {
+          "type": "string"
+        },
+        "totalItems": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "processedItems": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "successCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "errorCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "startTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "estimatedCompletion": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "recentErrors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "progressByType": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "protobufNullValue": {
+      "type": "string",
+      "enum": [
+        "NULL_VALUE"
+      ],
+      "default": "NULL_VALUE",
+      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\nThe JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

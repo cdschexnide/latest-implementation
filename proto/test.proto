@@ -1,0 +1,15 @@
+syntax = "proto3";
+package test;
+
+option go_package = "blade-ingestion-service/generated/proto";
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+
+service TestService {
+  rpc Test(google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      get: "/test"
+    };
+  }
+}
