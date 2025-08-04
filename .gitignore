@@ -1,53 +1,53 @@
-# Binaries
-*.exe
-*.dll
-*.so
-*.dylib
-bin/
-dist/
+# # Binaries
+# *.exe
+# *.dll
+# *.so
+# *.dylib
+# bin/
+# dist/
 
-# Test binary, built with `go test -c`
-*.test
+# # Test binary, built with `go test -c`
+# *.test
 
-# Output of the go coverage tool
-*.out
+# # Output of the go coverage tool
+# *.out
 
-# Dependency directories
-vendor/
+# # Dependency directories
+# vendor/
 
-# Go workspace file
-go.work
+# # Go workspace file
+# go.work
 
-# Environment files
-# .env
-# .env.local
-# .env.*.local
+# # Environment files
+# # .env
+# # .env.local
+# # .env.*.local
 
-# IDE specific files
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
+# # IDE specific files
+# .idea/
+# .vscode/
+# *.swp
+# *.swo
+# *~
 
-# OS specific
-.DS_Store
-Thumbs.db
+# # OS specific
+# .DS_Store
+# Thumbs.db
 
-# Generated files
-# /generated/
-# *.pb.go
-# *.pb.gw.go
+# # Generated files
+# # /generated/
+# # *.pb.go
+# # *.pb.gw.go
 
-# Logs
-*.log
+# # Logs
+# *.log
 
-# Temporary files
-*.tmp
-*.temp
+# # Temporary files
+# *.tmp
+# *.temp
 
-# Build artifacts
-/builds/
+# # Build artifacts
+# /builds/
 
-# Swagger UI maps (large files)
-swagger/*.map
+# # Swagger UI maps (large files)
+# swagger/*.map
